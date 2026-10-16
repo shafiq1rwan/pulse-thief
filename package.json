@@ -1,0 +1,14 @@
+{
+  "name": "pulse-thief-phaser",
+  "version": "0.2.0",
+  "description": "Neon chain-reaction arcade game built with Phaser 3. No build step, runs offline from index.html.",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "start": "npx --yes serve . -l 8000",
+    "check": "node --check src/config.js && node --check src/audio.js && node --check src/scenes/PulseScene.js && node --check src/main.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

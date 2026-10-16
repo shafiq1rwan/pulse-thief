@@ -8,6 +8,10 @@ Everything is generated in code: no image files, no sound files, no build step, 
 
 <img src="docs/screenshot-phone.png" alt="Pulse Thief on a phone" width="260" />
 
+## Play
+
+Live: <https://shafiq1rwan.github.io/pulse-thief/> (deployed from `main` by GitHub Actions).
+
 ## Quick start
 
 Double-click `index.html`. That's it.
@@ -90,6 +94,10 @@ The canvas fills whatever space the page gives it and lays itself out per orient
 All balance values live in `src/config.js` under `CONFIG`. Colours live in `COLORS`. Change a number, refresh the page.
 
 See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for what each knob does, and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) before touching `PulseScene.js`.
+
+## Deploying
+
+Pushing to `main` runs `.github/workflows/pages.yml`: a syntax check, then a GitHub Pages deploy of `index.html`, `assets/`, `src/` and `vendor/`. One-time setup in the repo: Settings → Pages → Source: **GitHub Actions**.
 
 ## Status
 

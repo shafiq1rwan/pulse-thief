@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#050913" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Pulse Thief</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <header class="masthead">
+      <div class="brand">
+        <span class="mark">◈</span>
+        <div>
+          <h1>PULSE <em>THIEF</em></h1>
+          <div class="tagline">CHAIN REACTION PUZZLE</div>
+        </div>
+      </div>
+      <button class="help-btn" id="help-btn" type="button" aria-haspopup="dialog" aria-controls="help" title="How to play">?</button>
+    </header>
+
+    <div id="game" aria-label="Pulse Thief game"></div>
+
+    <footer>
+      <span>CLICK A NODE TO INJECT ENERGY</span>
+      <span>R RESTART &nbsp;•&nbsp; M SOUND &nbsp;•&nbsp; ? HELP</span>
+    </footer>
+  </main>
+
+  <dialog class="help" id="help" aria-labelledby="help-title">
+    <div class="help-card">
+      <h2 id="help-title">HOW TO PLAY</h2>
+      <p>Spend a charge on a node. Energy jumps to every node within its reach, and those nodes fire too. Light up the target number of nodes before you run out of charges. Longer chains score more.</p>
+      <ul>
+        <li><span class="dot" style="background:#49ecff"></span><b>RELAY</b> Standard pulse.</li>
+        <li><span class="dot" style="background:#ff5ccf"></span><b>AMPLIFIER</b> Wide pulse.</li>
+        <li><span class="dot" style="background:#ffd36c"></span><b>SPLITTER</b> Fires three long bolts in different directions.</li>
+        <li><span class="dot" style="background:#b797ff"></span><b>CAPACITOR</b> Needs two hits before it fires.</li>
+        <li><span class="dot" style="background:#62ffad"></span><b>BATTERY</b> Gives you a charge back.</li>
+      </ul>
+      <p class="keys" id="help-controls">HOVER a node to preview its reach, CLICK to fire. R restarts, M toggles sound.</p>
+      <button type="button" id="help-close">GOT IT</button>
+    </div>
+  </dialog>
+
+  <!-- Classic scripts (not ES modules) so the game runs from file:// with no server.
+       Order matters: engine, then config, then systems, then scenes, then boot. -->
+  <script src="vendor/phaser.min.js"></script>
+  <script src="src/config.js"></script>
+  <script src="src/audio.js"></script>
+  <script src="src/scenes/PulseScene.js"></script>
+  <script src="src/main.js"></script>
+  <script src="src/ui.js"></script>
+</body>
+</html>
