@@ -85,9 +85,13 @@ window.PulseThief = window.PulseThief || {};
     hoverScale: 1.18,        // node swell on hover
     squashX: 1.4, squashY: 0.6, // hit squash before the elastic rebound
     shoveDistance: 14,       // px a neighbour is pushed by a nearby pulse
-    shakeBase: 0.0015,       // camera shake intensity at combo 1
-    shakePerCombo: 0.0006,   // added per chain step
-    shakeMax: 0.012,
+    // Camera shake is deliberately sparse: only the first hit of a chain, the
+    // sting thresholds and the sector clear. Per-node shaking caused motion
+    // discomfort in testing. Set shakeMax to 0 to disable entirely.
+    shakeFirst: 0.0012,      // the player's own click
+    shakeSting: 0.003,       // at x5 / x8 / x12
+    shakeWin: 0.0035,        // sector cleared
+    shakeMax: 0.004,
     stings: { 5: 'NICE', 8: 'SURGE', 12: 'OVERLOAD' },
   };
 

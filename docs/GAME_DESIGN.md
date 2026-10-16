@@ -58,7 +58,7 @@ There is no tutorial screen. The game teaches by showing:
 - After the first chain a single callout explains that longer chains score more.
 - Spent nodes go dim, live nodes keep glowing, so "what can I still click" is always visible.
 
-Feel tunables live in `JUICE` (`config.js`): hover swell, squash amounts, shove distance, shake curve, sting thresholds.
+Feel tunables live in `JUICE` (`config.js`): hover swell, squash amounts, shove distance, shake amounts, sting thresholds. Shake is sparse by design: the player's click, the x5 / x8 / x12 stings and the sector clear, never per node. Per-node shake was tested and caused motion discomfort. `shakeMax: 0` disables it.
 
 ### Simulated balance (400 boards per row)
 

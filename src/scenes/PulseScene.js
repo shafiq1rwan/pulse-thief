@@ -658,7 +658,7 @@
       this.flashNumber(node.x, node.y, '+' + points, node.color);
       this.spark(node.x, node.y, node.color, node.type === 'amp' ? 18 : 10);
       this.audio.tone(Math.min(1000, 230 + this.combo * 46), 0.095, 'sine');
-      this.cameras.main.shake(110, Math.min(JUICE.shakeMax, JUICE.shakeBase + this.combo * JUICE.shakePerCombo), true);
+      if (this.combo === 1) this.shake(90, JUICE.shakeFirst);
       this.bumpChainLabel();
       if (JUICE.stings[this.combo]) this.sting(node, JUICE.stings[this.combo]);
 
@@ -737,6 +737,13 @@
       });
     }
 
+    /** Camera shake, capped and never stacked: an in-progress shake is left alone. */
+    shake(duration, intensity) {
+      const amt = Math.min(JUICE.shakeMax, intensity);
+      if (amt <= 0) return;
+      this.cameras.main.shake(duration, amt, false);
+    }
+
     /** Scale-punch any display object (base scale 1). */
     punch(obj, amount = 1.25) {
       this.tweens.killTweensOf(obj);
@@ -757,7 +764,8 @@
       this.tweens.add({ targets: t, scale: 1, duration: 220, ease: 'Back.easeOut' });
       this.tweens.add({ targets: t, y: node.y - 80 * node.base, alpha: 0, duration: 900, delay: 350, onComplete: () => t.destroy() });
       this.audio.tone(900 + this.combo * 30, 0.18, 'square');
-      this.cameras.main.flash(90, 255, 255, 255, false);
+      this.shake(120, JUICE.shakeSting);
+      this.cameras.main.flash(70, 255, 255, 255, false);
     }
 
     /** Centre-field message that fades after a beat. */
@@ -904,8 +912,8 @@
 
     celebrateWin() {
       const lit = this.all.filter((n) => n.activated);
-      this.cameras.main.flash(160, 255, 255, 255, false);
-      this.cameras.main.shake(260, 0.008, true);
+      this.cameras.main.flash(140, 255, 255, 255, false);
+      this.shake(200, JUICE.shakeWin);
       [0, 90, 180, 300].forEach((d, i) => this.time.delayedCall(d, () => this.audio.tone([523, 659, 784, 1047][i], 0.22, 'triangle')));
       lit.forEach((n, i) => this.time.delayedCall(i * 22, () => this.confetti(n.x, n.y, n.color)));
 
@@ -946,7 +954,7 @@
           this.tweens.add({ targets: this.rankRing, scale: 1, duration: 320, ease: 'Back.easeOut', delay: 200 });
           this.tiles.forEach((tile, i) => this.time.delayedCall(80 * i, () => this.punch(tile.value, 1.35)));
           this.tweens.add({ targets: this.rankCaption, alpha: 1, duration: 200, delay: 300 });
-          this.time.delayedCall(330, () => { this.cameras.main.shake(120, 0.006, true); this.audio.tone(rank === 'S' ? 1320 : 990, 0.25, 'square'); });
+          this.time.delayedCall(330, () => { this.shake(100, JUICE.shakeSting); this.audio.tone(rank === 'S' ? 1320 : 990, 0.25, 'square'); });
           if (isNewBest) {
             this.time.delayedCall(520, () => {
               this.newBest.setVisible(true);
