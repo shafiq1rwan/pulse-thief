@@ -37,9 +37,13 @@ jobs:
       - name: Stage site
         run: |
           mkdir -p _site
-          cp index.html _site/
           cp -r assets src vendor _site/
           touch _site/.nojekyll
+          # Cache-bust every local script and stylesheet with the commit SHA so
+          # browsers (phones especially) fetch new code after each deploy.
+          V="${GITHUB_SHA::7}"
+          sed -E "s#(src|href)=\"((src|assets|vendor)/[^\"?]+)\"#=\"?v=$V\"#g" index.html > _site/index.html
+          grep -c "?v=$V" _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

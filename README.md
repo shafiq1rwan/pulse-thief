@@ -104,7 +104,7 @@ See [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md) for what each knob does, and [doc
 
 ## Deploying
 
-Pushing to `main` runs `.github/workflows/pages.yml`: a syntax check, then a GitHub Pages deploy of `index.html`, `assets/`, `src/` and `vendor/`. One-time setup in the repo: Settings → Pages → Source: **GitHub Actions**.
+Pushing to `main` runs `.github/workflows/pages.yml`: a syntax check, then a GitHub Pages deploy of `index.html`, `assets/`, `src/` and `vendor/`. The staging step appends `?v=<commit>` to every local script and stylesheet URL so browsers fetch new code after each deploy. GitHub Pages caches `index.html` itself for 10 minutes, so a phone can lag a deploy by that long; a pull-to-refresh after that is enough. One-time setup in the repo: Settings → Pages → Source: **GitHub Actions**.
 
 ## Status
 
