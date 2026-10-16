@@ -43,6 +43,20 @@ The tension is spatial: find the click that reaches the most nodes, and save a c
 
 Spawn weight comes from how many times the type appears in `TYPES`. The first three nodes of every sector are forced to battery, amplifier, splitter so each sector has at least one of each.
 
+## Visual identity
+
+Direction: **bioluminescent**. The field is deep water; nodes are small glowing organisms; energy spreads like a pulse through a colony. The palette has three jobs and only three:
+
+| Job                       | Colours                                                     |
+| ------------------------- | ----------------------------------------------------------- |
+| World and nodes (cool)    | water `#0b1a2a`, teal `#2bd4c3`, violet `#8f7bff`, aqua `#7fe9ff`, deep blue `#4f8dff` |
+| Energy (pale-hot)         | `#d8fff9` for arcs, flashes and lit cores                   |
+| Rewards (warm accent)     | amber `#ffb347` for charges, the seed node, stings, rank, NEW BEST |
+
+Node types are shape-coded so colour is never the only signal: cell (round), bloom (petals), trilobe (three lobes), shell (double ring), seed (pod). Spent nodes keep their shape at low alpha so the board stays legible.
+
+Type: Fredoka, a rounded geometric, embedded. Shake is sparse (see below); the organic squash and spring on nodes carries the feel instead.
+
 ## Screens and input
 
 All distances in this document are for the reference 876 x 406 playfield. On other screens they are multiplied by `unit` (see ARCHITECTURE.md), so a phone board is a scaled copy with the same density and the same chain behaviour.

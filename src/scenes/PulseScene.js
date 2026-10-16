@@ -15,7 +15,7 @@
   'use strict';
 
   const { CONFIG, COLORS, TYPES, COLOR_BY_TYPE, ICON_BY_TYPE, TYPE_LABELS, JUICE, dist, hex } = PT;
-  const FONT = '"Trebuchet MS", "Segoe UI", Arial, sans-serif';
+  const FONT = '"Fredoka", "Trebuchet MS", "Segoe UI", Arial, sans-serif';
 
   class PulseScene extends Phaser.Scene {
     constructor() { super({ key: 'Pulse' }); }
@@ -38,9 +38,32 @@
       try { this.best = Number(localStorage.getItem(PT.STORAGE_KEY) || 0); } catch (e) { /* no storage */ }
 
       this.bg = this.add.graphics().setDepth(0);
+      // Soft radial glow textures. Baked in colour because the Canvas renderer
+      // (used as a fallback and in headless tests) ignores image tint.
+      const glowTex = (key, rgb) => {
+        if (this.textures.exists(key)) return;
+        const c = this.textures.createCanvas(key, 256, 256);
+        const ctx = c.getContext();
+        const grad = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+        grad.addColorStop(0, 'rgba(' + rgb + ',1)');
+        grad.addColorStop(0.45, 'rgba(' + rgb + ',0.35)');
+        grad.addColorStop(1, 'rgba(' + rgb + ',0)');
+        ctx.fillStyle = grad; ctx.fillRect(0, 0, 256, 256);
+        c.refresh();
+      };
+      glowTex('glow-water', '22,64,78');
+      glowTex('glow-teal', '43,212,195');
+      glowTex('glow-violet', '143,123,255');
+      this.vignette = this.add.image(0, 0, 'glow-water').setDepth(0).setAlpha(0.5);
+      this.blobs = [];
+      for (let i = 0; i < 6; i++) {
+        const b = this.add.image(0, 0, i % 2 ? 'glow-teal' : 'glow-violet').setDepth(0).setAlpha(0.045).setBlendMode(Phaser.BlendModes.ADD);
+        b.nx = Math.random(); b.ny = Math.random(); b.sz = Phaser.Math.FloatBetween(0.45, 0.9);
+        this.blobs.push(b);
+      }
       this.stars = [];
       for (let i = 0; i < 38; i++) {
-        const star = this.add.circle(0, 0, Phaser.Math.FloatBetween(0.4, 1.6), 0x4aa9cb, 0.12).setDepth(0);
+        const star = this.add.circle(0, 0, Phaser.Math.FloatBetween(0.4, 1.6), 0x7fe9ff, 0.10).setDepth(0);
         star.nx = Math.random(); star.ny = Math.random();
         this.tweens.add({ targets: star, alpha: 0.42, duration: Phaser.Math.Between(1100, 2500), yoyo: true, repeat: -1 });
         this.stars.push(star);
@@ -65,55 +88,55 @@
       this.startSector();
     }
 
-    text(x, y, str, size = 16, color = '#d8f6ff') {
+    text(x, y, str, size = 16, color = '#d8fff9') {
       return this.add.text(x, y, str, { fontFamily: FONT, fontSize: Math.round(size) + 'px', fontStyle: 'bold', color });
     }
 
     makeUI() {
       const t = (x, y, s, size, color) => this.text(x, y, s, size, color);
       // HUD text; positions and sizes are assigned in layout().
-      this.title = t(0, 0, 'SECTOR 01', 22, '#e2faff');
-      this.subtitle = t(0, 0, 'CLEAR THE GRID', 10, '#749fb5');
+      this.title = t(0, 0, 'SECTOR 01', 22, '#eafffb');
+      this.subtitle = t(0, 0, 'CLEAR THE GRID', 10, '#5f8a93');
       this.scoreLabel = t(0, 0, '000000', 20, '#ffffff');
-      this.scoreCaption = t(0, 0, 'SCORE', 9, '#7299ad');
-      this.bestLabel = t(0, 0, 'BEST 000000', 10, '#7299ad');
-      this.chargeCaption = t(0, 0, 'CHARGES', 9, '#c9a34f');
-      this.chargeLabel = t(0, 0, '', 12, '#ffcf70');
-      this.targetCaption = t(0, 0, 'TARGET', 9, '#7299ad');
-      this.targetLabel = t(0, 0, '0 / 0', 22, '#7ef4ff');
-      this.statusLabel = t(0, 0, '', 11, '#8ec9df');
-      this.helpLabel = t(0, 0, 'R RESTART   M SOUND', 9, '#5c8199').setLetterSpacing(1);
+      this.scoreCaption = t(0, 0, 'SCORE', 9, '#6a95a0');
+      this.bestLabel = t(0, 0, 'BEST 000000', 10, '#6a95a0');
+      this.chargeCaption = t(0, 0, 'CHARGES', 9, '#c08a3e');
+      this.chargeLabel = t(0, 0, '', 12, '#ffb347');
+      this.targetCaption = t(0, 0, 'TARGET', 9, '#6a95a0');
+      this.targetLabel = t(0, 0, '0 / 0', 22, '#5ee9d6');
+      this.statusLabel = t(0, 0, '', 11, '#7fb8c0');
+      this.helpLabel = t(0, 0, 'R RESTART   M SOUND', 9, '#4f737c').setLetterSpacing(1);
       this.previewLabel = t(0, 0, '', 10, '#ffffff').setOrigin(0.5, 1).setDepth(6).setVisible(false).setLetterSpacing(1);
-      this.previewLabel.setStroke('#06111e', 4);
+      this.previewLabel.setStroke('#071321', 4);
       this.chainLabel = t(0, 0, '', 22, '#ffffff').setOrigin(0.5).setDepth(40).setAlpha(0);
 
       // End-of-sector results card. Geometry is computed in layoutOverlay();
       // the card, tiles and button are drawn by drawOverlayCard().
-      this.dim = this.add.rectangle(0, 0, 10, 10, 0x030810, 0.72).setOrigin(0).setDepth(69).setVisible(false);
+      this.dim = this.add.rectangle(0, 0, 10, 10, 0x03060c, 0.74).setOrigin(0).setDepth(69).setVisible(false);
       this.overlay = this.add.container(0, 0).setDepth(70).setVisible(false);
       this.cardG = this.add.graphics();
-      this.overlayKicker = t(0, 0, 'SECTOR 01', 11, '#7299ad').setOrigin(0.5).setLetterSpacing(3);
-      this.overlayTitle = t(0, 0, 'SECTOR CLEARED', 34, '#7ef4ff').setOrigin(0.5);
-      this.overlayScoreLabel = t(0, 0, 'TOTAL SCORE', 10, '#7299ad').setOrigin(0.5).setLetterSpacing(3);
+      this.overlayKicker = t(0, 0, 'SECTOR 01', 11, '#6a95a0').setOrigin(0.5).setLetterSpacing(3);
+      this.overlayTitle = t(0, 0, 'SECTOR CLEARED', 34, '#5ee9d6').setOrigin(0.5);
+      this.overlayScoreLabel = t(0, 0, 'TOTAL SCORE', 10, '#6a95a0').setOrigin(0.5).setLetterSpacing(3);
       this.overlayScore = t(0, 0, '000000', 56, '#ffffff').setOrigin(0.5);
-      this.rankRing = this.add.circle(0, 0, 30, 0xffd36c, 0.14).setStrokeStyle(3, 0xffd36c, 1);
-      this.rankLabel = t(0, 0, 'S', 40, '#ffd36c').setOrigin(0.5, 0.55);
-      this.rankCaption = t(0, 0, 'RANK', 8, '#7299ad').setOrigin(0.5).setLetterSpacing(3);
+      this.rankRing = this.add.circle(0, 0, 30, 0xffb347, 0.14).setStrokeStyle(3, 0xffb347, 1);
+      this.rankLabel = t(0, 0, 'S', 40, '#ffb347').setOrigin(0.5, 0.55);
+      this.rankCaption = t(0, 0, 'RANK', 8, '#6a95a0').setOrigin(0.5).setLetterSpacing(3);
       this.tiles = [0, 1, 2].map(() => ({
         value: t(0, 0, '0', 22, '#ffffff').setOrigin(0.5),
-        label: t(0, 0, 'LABEL', 9, '#7299ad').setOrigin(0.5).setLetterSpacing(2),
+        label: t(0, 0, 'LABEL', 9, '#6a95a0').setOrigin(0.5).setLetterSpacing(2),
       }));
-      this.overlayTip = t(0, 0, '', 11, '#8ec9df').setOrigin(0.5).setAlign('center');
-      this.newBest = t(0, 0, 'NEW BEST', 14, '#06111e').setOrigin(0.5).setAngle(-10).setPadding(10, 5, 10, 5);
-      this.newBest.setBackgroundColor('#ffd36c');
+      this.overlayTip = t(0, 0, '', 11, '#7fb8c0').setOrigin(0.5).setAlign('center');
+      this.newBest = t(0, 0, 'NEW BEST', 14, '#071321').setOrigin(0.5).setAngle(-10).setPadding(10, 5, 10, 5);
+      this.newBest.setBackgroundColor('#ffb347');
       this.btnG = this.add.graphics();
       this.btnBg = this.add.rectangle(0, 0, 240, 50, 0xffffff, 0).setInteractive({ useHandCursor: true });
-      this.btnLabel = t(0, 0, 'NEXT SECTOR  →', 16, '#e5fcff').setOrigin(0.5);
-      this.btnHint = t(0, 0, 'SPACE / ENTER', 9, '#5c8199').setOrigin(0.5).setLetterSpacing(2);
+      this.btnLabel = t(0, 0, 'NEXT SECTOR  →', 16, '#eafffb').setOrigin(0.5);
+      this.btnHint = t(0, 0, 'SPACE / ENTER', 9, '#4f737c').setOrigin(0.5).setLetterSpacing(2);
       this.overlay.add([this.cardG, this.overlayKicker, this.overlayTitle, this.overlayScoreLabel, this.overlayScore,
         this.rankRing, this.rankLabel, this.rankCaption, this.overlayTip, this.newBest, this.btnG, this.btnBg, this.btnLabel, this.btnHint]);
       for (const tile of this.tiles) this.overlay.add([tile.value, tile.label]);
-      this.ovl = { accent: 0x32bfd8, hasRank: false, rankColor: 0xffd36c, tiles: [['0', 'NODES LIT'], ['x0', 'BEST CHAIN'], ['0', 'SAVED']], tip: '', btnOn: false, hot: false };
+      this.ovl = { accent: 0x2bd4c3, hasRank: false, rankColor: 0xffd36c, tiles: [['0', 'NODES LIT'], ['x0', 'BEST CHAIN'], ['0', 'SAVED']], tip: '', btnOn: false, hot: false };
       this.btnBg.on('pointerover', () => { this.ovl.hot = true; this.drawOverlayCard(); });
       this.btnBg.on('pointerout', () => { this.ovl.hot = false; this.drawOverlayCard(); });
       this.btnBg.on('pointerdown', () => this.pressOverlayButton());
@@ -147,14 +170,23 @@
       // Background, grid, border
       const g = this.bg;
       g.clear();
-      g.fillStyle(0x07101e, 1); g.fillRect(0, 0, W, H);
-      g.lineStyle(Math.max(1, dpr * 0.6), 0x29425d, 0.22);
+      g.fillStyle(COLORS.bg, 1); g.fillRect(0, 0, W, H);
+      g.fillStyle(COLORS.water, 1); g.fillRoundedRect(field.x, field.y, field.w, field.h, 14 * dpr);
+      g.lineStyle(Math.max(1, dpr * 0.6), 0x1c3a4a, 0.14);
       const step = Math.round(30 * this.unit);
       for (let x = field.x + step; x < field.x + field.w; x += step) g.lineBetween(x, field.y, x, field.y + field.h);
       for (let y = field.y + step; y < field.y + field.h; y += step) g.lineBetween(field.x, y, field.x + field.w, y);
-      g.lineStyle(2 * dpr, 0x22718b, 0.65); g.strokeRoundedRect(field.x, field.y, field.w, field.h, 14 * dpr);
-      g.lineStyle(12 * dpr, 0x12bfe8, 0.035); g.strokeRoundedRect(field.x, field.y, field.w, field.h, 14 * dpr);
+      g.lineStyle(1.5 * dpr, 0x1e4a5a, 0.6); g.strokeRoundedRect(field.x, field.y, field.w, field.h, 14 * dpr);
       for (const s of this.stars) s.setPosition(field.x + s.nx * field.w, field.y + s.ny * field.h);
+      this.vignette.setPosition(field.x + field.w / 2, field.y + field.h / 2).setDisplaySize(field.w * 1.25, field.h * 1.6);
+      const bigSide = Math.max(field.w, field.h);
+      for (const b of this.blobs) {
+        this.tweens.killTweensOf(b);
+        const bx = field.x + b.nx * field.w, by = field.y + b.ny * field.h;
+        b.setPosition(bx, by).setDisplaySize(bigSide * b.sz, bigSide * b.sz);
+        this.tweens.add({ targets: b, x: bx + Phaser.Math.Between(-80, 80) * this.unit, y: by + Phaser.Math.Between(-60, 60) * this.unit,
+          alpha: 0.08, duration: Phaser.Math.Between(9000, 15000), yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+      }
       this.fieldMaskG.clear(); this.fieldMaskG.fillStyle(0xffffff, 1); this.fieldMaskG.fillRoundedRect(field.x, field.y, field.w, field.h, 14 * dpr);
 
       // HUD
@@ -195,7 +227,7 @@
 
       this.layoutOverlay();
 
-      this.previewLabel.setStroke('#06111e', 4 * dpr);
+      this.previewLabel.setStroke('#071321', 4 * dpr);
 
       // Nodes follow the field
       for (const node of this.all) {
@@ -325,21 +357,21 @@
       g.clear();
       // Glow, card, top accent bar.
       g.fillStyle(acc, 0.10); g.fillRoundedRect(O.x - 8 * cf, O.y - 8 * cf, O.w + 16 * cf, O.h + 16 * cf, r + 8 * cf);
-      g.fillStyle(0x0a1a2e, 0.98); g.fillRoundedRect(O.x, O.y, O.w, O.h, r);
+      g.fillStyle(0x0b1a2a, 0.98); g.fillRoundedRect(O.x, O.y, O.w, O.h, r);
       g.lineStyle(1.5 * dpr, acc, 0.9); g.strokeRoundedRect(O.x, O.y, O.w, O.h, r);
       g.fillStyle(acc, 1); g.fillRoundedRect(O.x + O.w / 2 - 28 * cf, O.y - 2 * dpr, 56 * cf, 4 * cf, 2 * cf);
       // Stat tiles.
       for (const t of O.tiles) {
-        g.fillStyle(0x0f2438, 1); g.fillRoundedRect(t.x, t.y, t.w, t.h, 10 * cf);
-        g.lineStyle(1 * dpr, 0x2b5a72, 0.9); g.strokeRoundedRect(t.x, t.y, t.w, t.h, 10 * cf);
+        g.fillStyle(0x10243a, 1); g.fillRoundedRect(t.x, t.y, t.w, t.h, 10 * cf);
+        g.lineStyle(1 * dpr, 0x1f4a57, 0.9); g.strokeRoundedRect(t.x, t.y, t.w, t.h, 10 * cf);
       }
       // Button (drawn relative to its centre so it can be scale-tweened).
       const b = this.btnG; b.clear();
       if (this.ovl.btnOn) {
         const bw = O.btn.w, bh = O.btn.h;
         b.fillStyle(acc, this.ovl.hot ? 0.35 : 0.18); b.fillRoundedRect(-bw / 2 - 3 * cf, -bh / 2 - 3 * cf, bw + 6 * cf, bh + 6 * cf, 14 * cf);
-        b.fillStyle(this.ovl.hot ? 0x206b7b : 0x154356, 1); b.fillRoundedRect(-bw / 2, -bh / 2, bw, bh, 12 * cf);
-        b.lineStyle(2 * dpr, 0x52dff0, 1); b.strokeRoundedRect(-bw / 2, -bh / 2, bw, bh, 12 * cf);
+        b.fillStyle(this.ovl.hot ? 0x1c6a6a : 0x14434a, 1); b.fillRoundedRect(-bw / 2, -bh / 2, bw, bh, 12 * cf);
+        b.lineStyle(2 * dpr, 0x2bd4c3, 1); b.strokeRoundedRect(-bw / 2, -bh / 2, bw, bh, 12 * cf);
       }
     }
 
@@ -429,18 +461,46 @@
       const F = this.field;
 
       const container = this.add.container(x, y).setDepth(10);
-      const aura = this.add.circle(0, 0, 24, color, 0.07).setStrokeStyle(2, color, 0.15);
-      const halo = this.add.circle(0, 0, 18, color, 0.075);
-      const rim = this.add.circle(0, 0, 15, 0x09192a).setStrokeStyle(2, color, 0.95);
-      const core = this.add.circle(0, 0, 6, color, 0.97);
-      const icon = this.add.text(0, 0, ICON_BY_TYPE[type], {
-        fontFamily: 'Arial', fontSize: type === 'relay' ? '9px' : '16px', color: '#07111f', fontStyle: 'bold',
-      }).setOrigin(0.5);
-      container.add([aura, halo, rim, core, icon]);
+      const ink = COLORS.water;
+      const glow = this.add.circle(0, 0, 27, color, 0.10);
+      const parts = [];
+      let body, shell = null;
+      switch (type) {
+        case 'amp': // bloom: six petals around a core
+          for (let i = 0; i < 6; i++) {
+            const a = i * Math.PI / 3;
+            parts.push(this.add.ellipse(Math.cos(a) * 10, Math.sin(a) * 10, 9, 19, color, 0.32).setAngle(i * 60 + 90));
+          }
+          body = this.add.circle(0, 0, 10, ink, 1).setStrokeStyle(2.5, color, 0.95);
+          parts.push(body);
+          break;
+        case 'split': // three lobes
+          for (let i = 0; i < 3; i++) {
+            const a = -Math.PI / 2 + i * 2 * Math.PI / 3;
+            parts.push(this.add.circle(Math.cos(a) * 9.5, Math.sin(a) * 9.5, 8, ink, 1).setStrokeStyle(2.2, color, 0.9));
+          }
+          body = this.add.circle(0, 0, 6.5, ink, 1).setStrokeStyle(2, color, 0.95);
+          parts.push(body);
+          break;
+        case 'cap': // double shell; the outer shell fills on the first hit
+          shell = this.add.circle(0, 0, 17, ink, 1).setStrokeStyle(2, color, 0.85);
+          body = this.add.circle(0, 0, 10, ink, 1).setStrokeStyle(2.5, color, 0.95);
+          parts.push(shell, body);
+          break;
+        case 'battery': // seed pod
+          body = this.add.ellipse(0, 0, 21, 30, ink, 1).setStrokeStyle(2.5, color, 0.95);
+          parts.push(body);
+          break;
+        default: // relay: plain cell
+          body = this.add.circle(0, 0, 14, ink, 1).setStrokeStyle(2.5, color, 0.95);
+          parts.push(body);
+      }
+      const core = this.add.circle(0, 0, type === 'battery' ? 5.5 : 4.5, color, 1);
+      container.add([glow, ...parts, core]);
 
       const node = {
         x, y, nx: (x - F.x) / F.w, ny: (y - F.y) / F.h, base: this.nodeScale,
-        type, color, container, aura, halo, rim, core, icon, hits: 0, activated: false,
+        type, color, container, aura: glow, rim: body, core, parts, shell, hits: 0, activated: false,
       };
       this.all.push(node);
 
@@ -458,7 +518,7 @@
         .on('pointerout', (pointer) => this.hoverNode(node, false, pointer))
         .on('pointerdown', (pointer) => this.onNodeDown(node, pointer));
       node.auraTween = this.tweens.add({
-        targets: aura, scale: Phaser.Math.FloatBetween(1.13, 1.37), alpha: 0.15,
+        targets: glow, scale: Phaser.Math.FloatBetween(1.13, 1.37), alpha: 0.18,
         duration: Phaser.Math.Between(850, 1500), yoyo: true, repeat: -1,
       });
     }
@@ -520,7 +580,7 @@
       g.lineStyle(1.5 * d, node.color, 0.45);
       g.strokeCircle(node.x, node.y, r);
       if (node.type === 'split') {
-        g.lineStyle(1 * d, COLORS.yellow, 0.25);
+        g.lineStyle(1 * d, COLORS.split, 0.25);
         g.strokeCircle(node.x, node.y, this.boltRadius);
       }
       for (const n of this.all) {
@@ -627,6 +687,7 @@
         this.spark(node.x, node.y, node.color, 9);
         this.audio.tone(280, 0.07, 'triangle');
         this.wobble(node, 0.55);
+        if (node.shell) node.shell.setFillStyle(node.color, 0.35);
         this.flashNumber(node.x, node.y, 'CHARGING', node.color);
         return;
       }
@@ -645,13 +706,11 @@
       // Visual state: bright flash, then "spent".
       node.container.disableInteractive();
       node.auraTween.stop();
-      node.aura.setScale(1).setFillStyle(node.color, 0.0).setStrokeStyle(2, node.color, 0.0);
-      node.halo.setAlpha(0);
-      node.core.setFillStyle(0xffffff, 1);
-      this.tweens.add({ targets: node.core, scale: 2.2, duration: 110, yoyo: true, onComplete: () => {
-        node.core.setFillStyle(node.color, 0.3);
-        node.rim.setStrokeStyle(2, node.color, 0.28);
-        node.icon.setAlpha(0.3);
+      node.aura.setAlpha(0);
+      node.core.setFillStyle(COLORS.energy, 1);
+      this.tweens.add({ targets: node.core, scale: 2.4, duration: 110, yoyo: true, onComplete: () => {
+        node.core.setFillStyle(node.color, 0.35);
+        for (const part of node.parts) part.setAlpha(0.26);
       } });
       this.wobble(node, 1);
 
@@ -664,7 +723,7 @@
 
       if (node.type === 'battery') {
         this.charges = Math.min(CONFIG.maxCharges, this.charges + 1);
-        this.flashNumber(node.x, node.y - 24 * this.dpr, '+1 CHARGE', COLORS.green);
+        this.flashNumber(node.x, node.y - 24 * this.dpr, '+1 CHARGE', COLORS.accent);
         this.punch(this.chargeCaption, 1.3);
       }
       this.updateHud();
@@ -706,7 +765,7 @@
 
       if (node.type === 'split') {
         this.splitTargets(node).forEach((n) => {
-          this.arc(node, n, COLORS.yellow);
+          this.arc(node, n, COLORS.split);
           this.time.delayedCall(160 + dist(node, n) * 1.6 / this.unit, () => this.receive(n));
         });
       }
@@ -753,7 +812,7 @@
 
     bumpChainLabel() {
       const lbl = this.chainLabel;
-      lbl.setText('CHAIN  x' + this.combo).setAlpha(1).setColor(this.combo >= 8 ? '#ffd36c' : '#ffffff');
+      lbl.setText('CHAIN  x' + this.combo).setAlpha(1).setColor(this.combo >= 8 ? '#ffb347' : '#eafffb');
       this.punch(lbl, 1 + Math.min(0.6, this.combo * 0.06));
     }
 
@@ -763,17 +822,17 @@
       t.setStroke(hex(node.color), 5 * this.dpr);
       this.tweens.add({ targets: t, scale: 1, duration: 220, ease: 'Back.easeOut' });
       this.tweens.add({ targets: t, y: node.y - 80 * node.base, alpha: 0, duration: 900, delay: 350, onComplete: () => t.destroy() });
-      this.audio.tone(900 + this.combo * 30, 0.18, 'square');
+      this.audio.tone(900 + this.combo * 30, 0.18, 'triangle');
       this.shake(120, JUICE.shakeSting);
       this.cameras.main.flash(70, 255, 255, 255, false);
     }
 
     /** Centre-field message that fades after a beat. */
-    callout(msg, color = '#9ff4ff') {
+    callout(msg, color = '#9ff5ef') {
       const cx = this.field.x + this.field.w / 2, cy = this.field.y + this.field.h / 2;
       const t = this.text(cx, cy + 8 * this.dpr, msg, 14 * this.f, color).setOrigin(0.5).setDepth(60).setAlpha(0).setAlign('center')
         .setWordWrapWidth(this.field.w - 40 * this.dpr);
-      t.setStroke('#06111e', 6 * this.dpr);
+      t.setStroke('#071321', 6 * this.dpr);
       this.tweens.add({ targets: t, alpha: 1, y: cy, duration: 260, ease: 'Quad.easeOut' });
       this.tweens.add({ targets: t, alpha: 0, duration: 400, delay: 1900, onComplete: () => t.destroy() });
       this.effects.push(t);
@@ -783,7 +842,7 @@
     drawShockwave(x, y, radius, color) {
       const ring = this.add.circle(x, y, 2).setStrokeStyle(3 * this.dpr, color, 0.95).setFillStyle(color, 0.06).setDepth(8);
       this.tweens.add({ targets: ring, scale: radius / 2, alpha: 0, duration: 440, ease: 'Cubic.easeOut', onComplete: () => ring.destroy() });
-      const ghost = this.add.circle(x, y, 2).setStrokeStyle(1 * this.dpr, 0xffffff, 0.6).setDepth(8);
+      const ghost = this.add.circle(x, y, 2).setStrokeStyle(1 * this.dpr, COLORS.energy, 0.6).setDepth(8);
       this.tweens.add({ targets: ghost, scale: radius / 2 * 0.8, alpha: 0, duration: 300, ease: 'Cubic.easeOut', onComplete: () => ghost.destroy() });
     }
 
@@ -799,8 +858,8 @@
         pts.push({ x: px + (b.y - a.y) / len * offset, y: py - (b.x - a.x) / len * offset });
       }
       pts.push({ x: b.x, y: b.y });
-      for (const [width, alpha] of [[7, 0.18], [2, 1]]) {
-        g.lineStyle(width * this.dpr, color, alpha);
+      for (const [width, alpha, col] of [[8, 0.22, color], [2, 1, COLORS.energy]]) {
+        g.lineStyle(width * this.dpr, col, alpha);
         g.beginPath();
         g.moveTo(pts[0].x, pts[0].y);
         for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
@@ -836,7 +895,7 @@
       const banked = this.ended && this.won;
       this.chargeLabel.setText(banked ? 'BANKED' : (this.charges <= 0 ? 'EMPTY' : ''));
       const reached = this.activated >= this.target;
-      this.targetLabel.setText(this.activated + ' / ' + this.target).setColor(reached ? '#62ffad' : '#7ef4ff');
+      this.targetLabel.setText(this.activated + ' / ' + this.target).setColor(reached ? '#ffb347' : '#5ee9d6');
       if (this._shownActivated !== undefined && this.activated !== this._shownActivated) this.punch(this.targetLabel, 1.3);
       this._shownActivated = this.activated;
 
@@ -851,10 +910,10 @@
         for (let i = 0; i < slots; i++) {
           const x = x0 + i * (size + gap), y = L.cellsY - size / 2;
           if (i < this.charges) {
-            g.fillStyle(COLORS.yellow, 0.18); g.fillRoundedRect(x - 2, y - 2, size + 4, size + 4, 4);
-            g.fillStyle(COLORS.yellow, 1); g.fillRoundedRect(x, y, size, size, 3);
+            g.fillStyle(COLORS.accent, 0.18); g.fillRoundedRect(x - 2, y - 2, size + 4, size + 4, 4);
+            g.fillStyle(COLORS.accent, 1); g.fillRoundedRect(x, y, size, size, 3);
           } else {
-            g.lineStyle(1 * this.dpr, COLORS.yellow, 0.35); g.strokeRoundedRect(x, y, size, size, 3);
+            g.lineStyle(1 * this.dpr, COLORS.accent, 0.35); g.strokeRoundedRect(x, y, size, size, 3);
           }
         }
       }
@@ -862,14 +921,14 @@
       const bw = L.barW, bh = Math.round(L.barH || 10 * f);
       const bx = L.barAlign === 1 ? L.barX - bw : L.barX, by = L.barY - bh / 2;
       const done = this.target > 0 ? Math.min(1, this.activated / this.target) : 0;
-      g.fillStyle(0x0d2233, 1); g.fillRoundedRect(bx, by, bw, bh, bh / 2);
+      g.fillStyle(0x0e2230, 1); g.fillRoundedRect(bx, by, bw, bh, bh / 2);
       if (done > 0) {
-        const col = done >= 1 ? COLORS.green : COLORS.cyan;
+        const col = done >= 1 ? COLORS.accent : COLORS.relay;
         const fw = Math.max(bh, bw * done);
         g.fillStyle(col, 0.22); g.fillRoundedRect(bx - 3 * this.dpr, by - 3 * this.dpr, fw + 6 * this.dpr, bh + 6 * this.dpr, bh / 2 + 3 * this.dpr);
         g.fillStyle(col, 1); g.fillRoundedRect(bx, by, fw, bh, bh / 2);
       }
-      g.lineStyle(1 * this.dpr, 0x3a7a94, 0.9); g.strokeRoundedRect(bx, by, bw, bh, bh / 2);
+      g.lineStyle(1 * this.dpr, 0x2a5f66, 0.9); g.strokeRoundedRect(bx, by, bw, bh, bh / 2);
     }
 
     // ------------------------------------------------------------ win / lose
@@ -884,7 +943,7 @@
         this.firstChainDone = true;
         this.callout('LONGER CHAINS SCORE MORE\n' + (this.isTouch ? 'TAP A NODE TO PREVIEW ITS REACH' : 'HOVER A NODE TO PREVIEW ITS REACH'));
       } else if (this.charges === 1) {
-        this.callout('LAST CHARGE  •  MAKE IT COUNT', '#ffcf70');
+        this.callout('LAST CHARGE  •  MAKE IT COUNT', '#ffb347');
         this.punch(this.chargeCaption, 1.4);
       }
       this.statusLabel.setText('CHAIN x' + this.maxCombo + '  •  ' + this.charges + ' CHARGE' + (this.charges > 1 ? 'S' : '') + ' LEFT');
@@ -904,10 +963,10 @@
     /** Rank from how cleanly the sector was cleared. */
     rankFor() {
       const c = this.charges, k = this.maxCombo;
-      if (c >= 2 && k >= 8) return ['S', '#ffd36c'];
-      if (c >= 1 || k >= 8) return ['A', '#7ef4ff'];
-      if (k >= 5) return ['B', '#b6dce8'];
-      return ['C', '#8eb3c3'];
+      if (c >= 2 && k >= 8) return ['S', '#ffb347'];
+      if (c >= 1 || k >= 8) return ['A', '#5ee9d6'];
+      if (k >= 5) return ['B', '#9fb8c8'];
+      return ['C', '#6f8a93'];
     }
 
     celebrateWin() {
@@ -929,7 +988,7 @@
 
       this.setOverlayContent({
         accent: 0x32bfd8, kicker: 'SECTOR ' + String(this.sector).padStart(2, '0') + '  •  CLEARED',
-        title: 'SECTOR CLEARED', titleColor: '#7ef4ff',
+        title: 'SECTOR CLEARED', titleColor: '#5ee9d6',
         score: String(preBonus).padStart(6, '0'), scoreColor: '#ffffff',
         tiles: [[this.activated + ' / ' + this.all.length, 'NODES LIT'], ['x' + this.maxCombo, 'BEST CHAIN'], [String(bonusCharges), bonusCharges === 1 ? 'CHARGE SAVED' : 'CHARGES SAVED']],
         tip: '', hasRank: true, rankColor: Phaser.Display.Color.HexStringToColor(rankColor).color, btn: 'NEXT SECTOR  →',
@@ -954,7 +1013,7 @@
           this.tweens.add({ targets: this.rankRing, scale: 1, duration: 320, ease: 'Back.easeOut', delay: 200 });
           this.tiles.forEach((tile, i) => this.time.delayedCall(80 * i, () => this.punch(tile.value, 1.35)));
           this.tweens.add({ targets: this.rankCaption, alpha: 1, duration: 200, delay: 300 });
-          this.time.delayedCall(330, () => { this.shake(100, JUICE.shakeSting); this.audio.tone(rank === 'S' ? 1320 : 990, 0.25, 'square'); });
+          this.time.delayedCall(330, () => { this.shake(100, JUICE.shakeSting); this.audio.tone(rank === 'S' ? 1320 : 990, 0.25, 'triangle'); });
           if (isNewBest) {
             this.time.delayedCall(520, () => {
               this.newBest.setVisible(true);
@@ -969,12 +1028,12 @@
 
     showLoss() {
       const short = this.target - this.activated;
-      this.audio.tone(220, 0.3, 'sawtooth');
+      this.audio.tone(220, 0.3, 'triangle');
       this.time.delayedCall(120, () => this.audio.tone(165, 0.4, 'sawtooth'));
       this.setOverlayContent({
-        accent: 0xff5c9a, kicker: 'SECTOR ' + String(this.sector).padStart(2, '0') + '  •  FAILED',
-        title: 'ENERGY DEPLETED', titleColor: '#ff7ea8',
-        score: String(this.score).padStart(6, '0'), scoreColor: '#b6dce8',
+        accent: 0xff6b7a, kicker: 'SECTOR ' + String(this.sector).padStart(2, '0') + '  •  FAILED',
+        title: 'ENERGY DEPLETED', titleColor: '#ff8a95',
+        score: String(this.score).padStart(6, '0'), scoreColor: '#a9cfd4',
         tiles: [[this.activated + ' / ' + this.target, 'NEEDED'], [String(short), short === 1 ? 'NODE SHORT' : 'NODES SHORT'], ['x' + this.maxCombo, 'BEST CHAIN']],
         tip: 'TIP: ' + (this.isTouch ? 'TAP' : 'HOVER') + ' A NODE TO PREVIEW ITS REACH BEFORE YOU FIRE',
         hasRank: false, rankColor: 0xffd36c, btn: 'RETRY SECTOR  ↻',
@@ -1012,21 +1071,21 @@
     /** A charge token flies from the HUD into the overlay score and bumps it. */
     flyCharge(i, newValue) {
       const L = this.L;
-      const token = this.text(L.cellsX + (L.cellsAlign === 1 ? -i * 18 - 8 : i * 18 + 8) * this.dpr, L.cellsY, '●', 16 * this.f, '#ffcf70').setOrigin(0.5).setDepth(80);
+      const token = this.text(L.cellsX + (L.cellsAlign === 1 ? -i * 18 - 8 : i * 18 + 8) * this.dpr, L.cellsY, '●', 16 * this.f, '#ffb347').setOrigin(0.5).setDepth(80);
       this.tweens.add({
         targets: token, x: this.overlayScore.x, y: this.overlayScore.y, scale: 0.4, duration: 420, ease: 'Cubic.easeIn',
         onComplete: () => {
           token.destroy();
-          this.overlayScore.setText(String(newValue).padStart(6, '0')).setColor('#ffd36c');
+          this.overlayScore.setText(String(newValue).padStart(6, '0')).setColor('#ffb347');
           this.punch(this.overlayScore, 1.25);
-          this.spark(this.overlayScore.x, this.overlayScore.y, COLORS.yellow, 8);
+          this.spark(this.overlayScore.x, this.overlayScore.y, COLORS.accent, 8);
           this.audio.tone(700 + i * 80, 0.1, 'triangle');
         },
       });
     }
 
     confetti(x, y, color) {
-      const palette = [color, 0xffffff, COLORS.yellow];
+      const palette = [color, COLORS.energy, COLORS.accent];
       const u = this.unit;
       for (let i = 0; i < 9; i++) {
         const piece = this.add.rectangle(x, y, Phaser.Math.Between(3, 6) * this.dpr, Phaser.Math.Between(6, 10) * this.dpr,

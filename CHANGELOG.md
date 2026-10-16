@@ -4,6 +4,11 @@ All notable changes to this project are recorded here. Format follows [Keep a Ch
 
 ## [Unreleased]
 
+### Changed
+- Visual identity: "bioluminescent". One cool family (teal to violet) for world and nodes, a pale-hot tint for energy, one warm amber accent for rewards. Node types are now shape-coded organisms: cell, bloom (six petals), trilobe, shell (double ring that fills on the first hit), seed (warm pod). Background has a soft vignette and slow drifting colour blobs instead of a uniform grid. HUD and results card inherit the same palette. Energy arcs are pale-hot with a coloured glow.
+- Display font: Fredoka (OFL), embedded as a base64 data URI so offline still works; the game waits up to 1.2 s for it before booting.
+- Softer synth timbres (triangle instead of square and sawtooth) and lower gain.
+
 ### Added
 - Results card redesign: glowing bordered card with accent bar, big total score, rank badge, three stat tiles, full-width button; two-column variant on short landscape screens. Card scale derives from its width with CSS-px font floors, so it reads the same on every device.
 - High-DPI rendering: the canvas is sized at `devicePixelRatio` (capped at 3) with Phaser `Scale.NONE` and `zoom = 1/DPR`. Fixes blurry text and lines on phones.

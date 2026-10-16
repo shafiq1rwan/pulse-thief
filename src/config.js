@@ -36,32 +36,48 @@ window.PulseThief = window.PulseThief || {};
     chainQuietMs: 750,     // chain is "over" after this much silence
   };
 
-  /** Palette (Phaser wants hex numbers, text styles want CSS strings). */
+  /** Palette: "bioluminescent". One cool family (teal -> violet) for the
+      world and the nodes, one pale-hot tint for energy, one warm accent for
+      rewards (charges, battery, stings, rank). Phaser wants hex numbers;
+      text styles use the CSS strings in the scene. */
   PT.COLORS = {
-    cyan: 0x49ecff, pink: 0xff5ccf, yellow: 0xffd36c, purple: 0xb797ff,
-    green: 0x62ffad, white: 0xe4f8ff, dim: 0x537b95, navy: 0x081527,
+    bg: 0x060a14,        // page / canvas
+    water: 0x0b1a2a,     // playfield and node ink
+    relay: 0x2bd4c3,     // teal
+    amp: 0x8f7bff,       // violet
+    split: 0x7fe9ff,     // pale aqua
+    cap: 0x4f8dff,       // deep blue
+    battery: 0xffb347,   // warm accent (reward)
+    accent: 0xffb347,    // charges, stings, rank, NEW BEST
+    energy: 0xd8fff9,    // arcs and flashes
+    white: 0xeafffb,
+    dim: 0x5f8a93,
+    spent: 0x1d3242,
   };
+  // Legacy aliases kept so older snippets keep working.
+  PT.COLORS.cyan = PT.COLORS.relay; PT.COLORS.pink = PT.COLORS.amp; PT.COLORS.yellow = PT.COLORS.accent;
+  PT.COLORS.purple = PT.COLORS.cap; PT.COLORS.green = PT.COLORS.accent;
 
   /** Spawn table: duplicates raise the odds of that type. */
   PT.TYPES = ['relay', 'relay', 'relay', 'relay', 'amp', 'split', 'cap', 'battery'];
 
   PT.COLOR_BY_TYPE = {
-    relay: PT.COLORS.cyan,
-    amp: PT.COLORS.pink,
-    split: PT.COLORS.yellow,
-    cap: PT.COLORS.purple,
-    battery: PT.COLORS.green,
+    relay: PT.COLORS.relay,
+    amp: PT.COLORS.amp,
+    split: PT.COLORS.split,
+    cap: PT.COLORS.cap,
+    battery: PT.COLORS.battery,
   };
 
   PT.ICON_BY_TYPE = { relay: '●', amp: '✦', split: '◆', cap: 'Ⅱ', battery: '+' };
 
   /** Shown above a node while it is hovered / selected, replacing a static legend. */
   PT.TYPE_LABELS = {
-    relay: 'RELAY',
-    amp: 'AMPLIFIER  ·  WIDE PULSE',
-    split: 'SPLITTER  ·  3 LONG BOLTS',
-    cap: 'CAPACITOR  ·  NEEDS 2 HITS',
-    battery: 'BATTERY  ·  +1 CHARGE',
+    relay: 'CELL',
+    amp: 'BLOOM  ·  WIDE PULSE',
+    split: 'TRILOBE  ·  3 LONG BOLTS',
+    cap: 'SHELL  ·  NEEDS 2 HITS',
+    battery: 'SEED  ·  +1 CHARGE',
   };
 
   /** Reference field size (px) that all radii / spacing were tuned on.

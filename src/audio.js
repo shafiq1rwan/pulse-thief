@@ -32,7 +32,7 @@
         osc.type = type;
         osc.frequency.setValueAtTime(freq, now);
         osc.frequency.exponentialRampToValueAtTime(Math.max(70, freq * 0.62), now + duration);
-        gain.gain.setValueAtTime(0.055, now);
+        gain.gain.setValueAtTime(0.045, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
         osc.connect(gain);
         gain.connect(ctx.destination);

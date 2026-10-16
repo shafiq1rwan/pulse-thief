@@ -11,7 +11,9 @@ Pulse Thief: a single-scene Phaser 3.90.0 arcade game. Zero build step, zero ass
 - **No ES modules.** Browsers block `import` on `file://`. Use classic `<script>` tags and the `window.PulseThief` namespace. See `docs/ARCHITECTURE.md`.
 - **No CDN or remote URLs** in `index.html`. Phaser lives in `vendor/`.
 - **No bundler, no npm install required to run.** `package.json` only holds convenience scripts.
-- **No image or audio files.** Graphics are Phaser shapes, audio is Web Audio.
+- **No image or audio files.** Graphics are Phaser shapes plus runtime-generated canvas textures, audio is Web Audio. The one asset is the display font, embedded as a data URI in `assets/fonts/fredoka.css`. If you ever add art, embed it as base64 in a JS/CSS file: Chrome refuses `file://` images as WebGL textures.
+- **Do not tint images.** The Canvas renderer ignores `setTint`; bake colour into generated textures instead (see `glowTex` in `PulseScene.create`).
+- **Palette has three jobs.** Cool family for world/nodes, `COLORS.energy` for arcs and flashes, `COLORS.accent` for rewards. Do not add a fourth hue.
 - **Responsive by construction.** Never hard-code a canvas coordinate outside `layout()`. Positions come from `this.field`, `this.L`, `this.f` and `this.unit`; nodes use `nx, ny`. Test at desktop, phone portrait and phone landscape before calling a layout change done.
 - **Touch has no hover.** Any new affordance that relies on hover needs a tap equivalent (see `select()`).
 - **Game px != CSS px.** The canvas renders at `PT.DPR` x. Multiply fixed pixel values by `this.dpr`; values already scaled by `f`, `unit` or `node.base` are fine. Breakpoints use `cw, ch` (CSS px). See ARCHITECTURE.md, Resolution.

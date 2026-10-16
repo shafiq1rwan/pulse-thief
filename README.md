@@ -2,7 +2,7 @@
 
 A neon chain-reaction arcade game built with [Phaser 3](https://phaser.io). Click a node to inject energy, watch the pulse cascade through the network, and clear each sector's target before your charges run out.
 
-Everything is generated in code: no image files, no sound files, no build step, no server. Phaser is bundled locally, so the game runs fully offline. The layout is responsive: it plays on a desktop browser, a tablet, or a phone in either orientation.
+Everything is generated in code: no image files, no sound files, no build step, no server. Phaser and the display font are bundled locally, so the game runs fully offline. The layout is responsive: it plays on a desktop browser, a tablet, or a phone in either orientation.
 
 ![Pulse Thief on desktop](docs/screenshot.png)
 
@@ -48,13 +48,15 @@ Then open <http://localhost:8000>.
 
 ### Node types
 
-| Node      | Colour | Behaviour                                                   |
-| --------- | ------ | ----------------------------------------------------------- |
-| Relay     | cyan   | Standard pulse radius                                       |
-| Amplifier | pink   | Larger pulse radius                                         |
-| Splitter  | yellow | Fires three long-range bolts in distinct directions         |
-| Capacitor | purple | Needs two hits before it fires; flashes on the first        |
-| Battery   | green  | Grants one extra charge when activated (max 8)              |
+| Node    | Shape               | Colour     | Behaviour                                                   |
+| ------- | ------------------- | ---------- | ----------------------------------------------------------- |
+| Cell    | plain round         | teal       | Standard pulse radius                                       |
+| Bloom   | six petals          | violet     | Larger pulse radius                                         |
+| Trilobe | three lobes         | pale aqua  | Fires three long-range bolts in distinct directions         |
+| Shell   | double ring         | deep blue  | Needs two hits; the outer shell fills on the first          |
+| Seed    | warm pod            | amber      | Grants one extra charge when activated (max 8)              |
+
+Types are shape-coded as well as colour-coded, so they read at a glance and without colour vision.
 
 Every sector guarantees at least one battery, one amplifier and one splitter.
 
@@ -64,6 +66,7 @@ Every sector guarantees at least one battery, one amplifier and one splitter.
 pulse-thief-phaser/
 ├── index.html              Full-viewport canvas host; help dialog; loads scripts in order
 ├── assets/css/style.css    Viewport, safe areas, help button and dialog
+├── assets/fonts/fredoka.css  Fredoka (OFL) embedded as a data URI
 ├── vendor/phaser.min.js    Phaser 3.90.0 (bundled for offline use)
 ├── src/
 │   ├── config.js           Tunables, palette, node tables, juice values
@@ -109,4 +112,4 @@ Prototype. Difficulty and balance have not been playtested. See [CHANGELOG.md](C
 
 ## License
 
-MIT. Phaser is MIT-licensed by Photon Storm; see `vendor/`.
+MIT. Phaser is MIT-licensed by Photon Storm; see `vendor/`. The Fredoka typeface is by Milena Brandão, under the SIL Open Font License 1.1, embedded in `assets/fonts/`.

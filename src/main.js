@@ -9,6 +9,7 @@
   // reasons in CSS px (breakpoints, touch targets). Capped at 3 to bound fill cost.
   PT.DPR = Math.min(window.devicePixelRatio || 1, 3);
 
+  function boot() {
   const cssW = Math.max(1, parent ? parent.clientWidth : 960);
   const cssH = Math.max(1, parent ? parent.clientHeight : 600);
 
@@ -39,5 +40,17 @@
       if (w > 0 && h > 0 && (w !== PT.game.scale.width || h !== PT.game.scale.height)) PT.game.scale.resize(w, h);
     });
     PT.game.events.once(Phaser.Core.Events.READY, () => ro.observe(parent));
+  }
+  }
+
+  // Canvas text is rasterised with whatever font is loaded at draw time, so
+  // wait for the embedded display font (bounded: never block the game on it).
+  if (document.fonts && document.fonts.load) {
+    Promise.race([
+      document.fonts.load('700 20px Fredoka'),
+      new Promise((resolve) => setTimeout(resolve, 1200)),
+    ]).then(boot, boot);
+  } else {
+    boot();
   }
 })(window.PulseThief);
