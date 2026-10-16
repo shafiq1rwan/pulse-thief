@@ -55,16 +55,23 @@ Everything you see. Sections, top to bottom:
 
 Phaser boot config. `parent: 'game'` targets the `<div id="game">` in `index.html`.
 
+## Resolution
+
+`main.js` sizes the canvas at `CSS px * PT.DPR` (`devicePixelRatio`, capped at 3) and uses `Phaser.Scale.NONE` with `zoom = 1 / PT.DPR`. Phaser then shrinks the hi-res canvas back to CSS size via its style and scales input coordinates accordingly. Inside the scene, **one game px is 1/DPR CSS px**. Anything that reasons about physical size (breakpoints, font floors, touch targets, fixed-pixel offsets) multiplies by `this.dpr`; anything proportional (`* f`, `* unit`, `* node.base`) already includes it because `f`, `unit` and `nodeScale` are computed in CSS px and multiplied by DPR.
+
+Why not `Scale.RESIZE` with `zoom`? RESIZE derives the game size from the parent's CSS size, which fights a DPR multiplier. NONE plus our own `ResizeObserver` (which multiplies by DPR) is explicit.
+
 ## Responsive layout
 
-`Phaser.Scale.RESIZE` keeps the canvas at the exact size of `#game`, so 1 game px = 1 CSS px. `layout(W, H)` runs on create and on every `resize` event and is the only place that knows about screen size:
+`layout(W, H)` runs on create and on every `resize` event and is the only place that knows about screen size:
 
-- `portrait = H > W * 0.95` picks one of two HUD arrangements.
-- `f` (0.68 to 1) scales every font and HUD measurement.
+- `cw, ch = W / dpr, H / dpr` are the CSS-px dimensions used for breakpoints.
+- `portrait = ch > cw * 0.95` picks one of two HUD arrangements.
+- `f = dpr * clamp(min(cw/960, ch/560), 0.68, 1)` scales every font and HUD measurement; HUD fonts floor at 8 CSS px.
 - `field` is what remains after the HUD rows and the status line.
 - `unit = clamp(sqrt(fieldArea / refArea), 0.55, 1.25)` scales radii, node spacing, shove distance and particle travel so density matches the reference 876 x 406 field the numbers were tuned on. `nodeScale` (0.78 to 1.15) scales the node containers; `node.base` remembers it so hover / wobble tweens are relative.
 - Nodes keep `nx, ny` in 0..1 and are re-placed from them, so a mid-sector rotation keeps the board.
-- Overlay elements are placed relative to the field centre and shrink under 540 px width (`narrow`).
+- `layoutOverlay()` lays out the results card: a stacked arrangement by default and a two-column one when `ch < 430 && cw > ch`. Card width is `min(cw - 24, 600)` CSS px (820 in wide mode); `cf = dpr * clamp(width / 520, 0.72, 1.15)` scales every card measurement, with per-text CSS-px floors via `sz(base, min)`. If the stack is taller than the field, `cf` shrinks to fit. `drawOverlayCard()` paints the card, tiles and button from the computed geometry (`this.ovlGeom`) and the content state (`this.ovl`); `setOverlayContent()` is the only entry point for filling it.
 
 The `ResizeObserver` in `main.js` matters because Phaser only re-measures on window `resize`. Flex layout settling after boot, a phone's address bar collapsing, or a `dvh` change do not fire one. It is attached after `Phaser.Core.Events.READY` because the observer fires synchronously on `observe()`, before the scale manager exists.
 

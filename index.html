@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#050913" />
+  <meta name="theme-color" content="#07101e" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -11,25 +11,9 @@
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>
-  <main class="shell">
-    <header class="masthead">
-      <div class="brand">
-        <span class="mark">◈</span>
-        <div>
-          <h1>PULSE <em>THIEF</em></h1>
-          <div class="tagline">CHAIN REACTION PUZZLE</div>
-        </div>
-      </div>
-      <button class="help-btn" id="help-btn" type="button" aria-haspopup="dialog" aria-controls="help" title="How to play">?</button>
-    </header>
+  <div id="game" aria-label="Pulse Thief game"></div>
 
-    <div id="game" aria-label="Pulse Thief game"></div>
-
-    <footer>
-      <span>CLICK A NODE TO INJECT ENERGY</span>
-      <span>R RESTART &nbsp;•&nbsp; M SOUND &nbsp;•&nbsp; ? HELP</span>
-    </footer>
-  </main>
+  <button class="help-btn" id="help-btn" type="button" aria-haspopup="dialog" aria-controls="help" title="How to play">?</button>
 
   <dialog class="help" id="help" aria-labelledby="help-title">
     <div class="help-card">

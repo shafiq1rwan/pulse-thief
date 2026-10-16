@@ -6,7 +6,7 @@ Everything is generated in code: no image files, no sound files, no build step, 
 
 ![Pulse Thief on desktop](docs/screenshot.png)
 
-<img src="docs/screenshot-phone.png" alt="Pulse Thief on a phone" width="260" />
+<p><img src="docs/screenshot-phone.png" alt="Pulse Thief on a phone" width="220" /> &nbsp; <img src="docs/screenshot-card.png" alt="Sector cleared card" width="520" /></p>
 
 ## Play
 
@@ -62,8 +62,8 @@ Every sector guarantees at least one battery, one amplifier and one splitter.
 
 ```
 pulse-thief-phaser/
-├── index.html              Page shell; loads scripts in order; help dialog
-├── assets/css/style.css    Page chrome around the canvas (responsive)
+├── index.html              Full-viewport canvas host; help dialog; loads scripts in order
+├── assets/css/style.css    Viewport, safe areas, help button and dialog
 ├── vendor/phaser.min.js    Phaser 3.90.0 (bundled for offline use)
 ├── src/
 │   ├── config.js           Tunables, palette, node tables, juice values
@@ -83,11 +83,15 @@ Scripts are plain classic `<script>` tags, not ES modules, on purpose. Browsers 
 
 The canvas fills whatever space the page gives it and lays itself out per orientation. Radii, node spacing and node size scale with the playfield so density feels the same everywhere. Touch targets stay at or above 44 px.
 
+The canvas is the whole page. It renders at the device's pixel ratio (capped at 3x), so text and lines are sharp on phones.
+
 | Screen                  | Layout                                                  |
 | ----------------------- | ------------------------------------------------------- |
 | Desktop / landscape     | One HUD row: sector, score, charges + target bar        |
-| Phone / tablet portrait | Two HUD rows, status line centred, footer hidden        |
-| Short landscape phone   | Compact chrome, same single HUD row                     |
+| Phone / tablet portrait | Two HUD rows, status line centred                       |
+| Short landscape phone   | Same single HUD row; results card switches to two columns |
+
+The only DOM outside the canvas is the `?` button (bottom-right) and its help dialog.
 
 ## Tweaking the game
 

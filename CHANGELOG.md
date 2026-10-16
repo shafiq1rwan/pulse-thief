@@ -5,6 +5,13 @@ All notable changes to this project are recorded here. Format follows [Keep a Ch
 ## [Unreleased]
 
 ### Added
+- Results card redesign: glowing bordered card with accent bar, big total score, rank badge, three stat tiles, full-width button; two-column variant on short landscape screens. Card scale derives from its width with CSS-px font floors, so it reads the same on every device.
+- High-DPI rendering: the canvas is sized at `devicePixelRatio` (capped at 3) with Phaser `Scale.NONE` and `zoom = 1/DPR`. Fixes blurry text and lines on phones.
+- Reach preview is clipped to the playfield.
+
+### Changed
+- Page chrome removed: the canvas fills the viewport inside the safe areas. The masthead and footer are gone; the `?` help button floats bottom-right.
+- HUD captions lose their letter spacing (Phaser clipped right-aligned spaced text) and get an 8 CSS px floor.
 - GitHub Pages deploy workflow (`.github/workflows/pages.yml`): syntax check, then publish the static site on every push to `main`.
 - Responsive layout. Phaser now runs in RESIZE mode and the scene re-lays itself out on every resize: HUD per orientation, playfield from the remaining space, radii / spacing / node size scaled by a `unit` factor derived from field area. Nodes keep normalised positions so rotating a phone mid-sector keeps the board intact.
 - Touch input model: tap to select and preview, tap again to fire, tap empty space to clear. Status lines, hint and tips switch wording on first touch.

@@ -1,9 +1,9 @@
-/* Pulse Thief — page chrome. Everything inside the canvas is drawn by Phaser.
-   The page is a full-viewport column: slim masthead, the game filling the
-   rest, and a one-line footer that disappears on small or touch screens. */
+/* Pulse Thief — page chrome. The canvas IS the page: #game fills the viewport
+   (inside the device safe areas) and Phaser draws everything, including the HUD.
+   The only DOM UI is the floating ? button and its help dialog. */
 
 :root {
-  --bg: #050913;
+  --bg: #07101e;
   --ink: #ebfaff;
   --muted: #7d9db5;
   --accent: #49edfa;
@@ -13,92 +13,69 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html, body { height: 100%; }
+html, body {
+  height: 100%;
+  background: var(--bg);
+  overflow: hidden;
+  overscroll-behavior: none;
+}
 
 body {
   font-family: var(--font);
   color: var(--ink);
-  background: var(--bg) radial-gradient(ellipse at 50% 0%, #142744 0%, #080e20 38%, #050913 85%) fixed;
-  overflow: hidden;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+  position: fixed;
+  inset: 0;
 }
 
-.shell {
-  height: 100vh;
-  height: 100dvh;
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 12px 16px;
-  padding-top: max(12px, env(safe-area-inset-top));
-  padding-bottom: max(12px, env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+/* Game container: whole viewport minus safe areas. Phaser sizes the canvas to it. */
+#game {
+  position: fixed;
+  top: env(safe-area-inset-top, 0px);
+  right: env(safe-area-inset-right, 0px);
+  bottom: env(safe-area-inset-bottom, 0px);
+  left: env(safe-area-inset-left, 0px);
+  touch-action: none;
+}
+#game canvas {
+  display: block;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
-/* Masthead */
-.masthead {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.mark { font-size: 24px; color: var(--accent); text-shadow: 0 0 18px #43e9fa80; line-height: 1; }
-h1 { font-size: 20px; letter-spacing: 3px; font-weight: 800; line-height: 1; white-space: nowrap; }
-h1 em { font-style: normal; color: var(--accent); }
-.tagline { font-size: 10px; letter-spacing: 2px; color: var(--muted); margin-top: 4px; }
-
+/* Floating help button, bottom-right. The in-canvas HUD leaves this corner free. */
 .help-btn {
-  flex: 0 0 auto;
-  width: 34px; height: 34px;
+  position: fixed;
+  right: calc(10px + env(safe-area-inset-right, 0px));
+  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  width: 36px; height: 36px;
   border-radius: 50%;
   border: 1px solid var(--line);
-  background: #0b1a2c;
+  background: #0b1a2ccc;
   color: #9fd4e6;
   font: 700 15px/1 var(--font);
   cursor: pointer;
   touch-action: manipulation;
+  z-index: 5;
 }
 .help-btn:hover, .help-btn:focus-visible { border-color: var(--accent); color: #fff; outline: none; }
-
-/* Game canvas container. Phaser RESIZE mode fills this element exactly. */
-#game {
-  flex: 1 1 auto;
-  min-height: 0;
-  position: relative;
-  border-radius: 16px;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  box-shadow: 0 25px 80px #0009, 0 0 35px #00cfff15;
-  background: #070f20;
-  touch-action: none;
-}
-#game canvas { display: block; touch-action: none; user-select: none; -webkit-user-select: none; }
-
-footer {
-  flex: 0 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  color: var(--muted);
-  font-size: 10px;
-  letter-spacing: 1.5px;
-}
 
 /* Help panel */
 .help {
   position: fixed; inset: 0;
+  width: 100%; height: 100%; max-width: none; max-height: none;
   display: none;
   align-items: center; justify-content: center;
   background: #03070fd0;
+  border: 0;
   padding: 16px;
   z-index: 10;
 }
 .help[open] { display: flex; }
+.help::backdrop { background: transparent; }
 .help-card {
   width: min(520px, 100%);
   max-height: 100%;
@@ -108,6 +85,7 @@ footer {
   border-radius: 16px;
   padding: 22px 22px 18px;
   box-shadow: 0 30px 80px #000c;
+  color: var(--ink);
 }
 .help-card h2 { font-size: 16px; letter-spacing: 3px; margin-bottom: 14px; }
 .help-card p { color: #b6dce8; font-size: 13px; line-height: 1.5; margin-bottom: 12px; }
@@ -121,17 +99,4 @@ footer {
   padding: 12px; border-radius: 10px;
   border: 1px solid #52dff0; background: #154356; color: #e5fcff;
   font: 700 14px/1 var(--font); letter-spacing: 2px; cursor: pointer;
-}
-
-/* Small screens and touch: tighten the chrome, drop the footer. */
-@media (max-width: 760px), (max-height: 540px) {
-  .shell { padding: 8px; gap: 6px; }
-  .mark { font-size: 20px; }
-  h1 { font-size: 16px; letter-spacing: 2px; }
-  .tagline { display: none; }
-  #game { border-radius: 12px; }
-  footer { display: none; }
-}
-@media (pointer: coarse) {
-  footer { display: none; }
 }

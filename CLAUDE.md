@@ -14,6 +14,8 @@ Pulse Thief: a single-scene Phaser 3.90.0 arcade game. Zero build step, zero ass
 - **No image or audio files.** Graphics are Phaser shapes, audio is Web Audio.
 - **Responsive by construction.** Never hard-code a canvas coordinate outside `layout()`. Positions come from `this.field`, `this.L`, `this.f` and `this.unit`; nodes use `nx, ny`. Test at desktop, phone portrait and phone landscape before calling a layout change done.
 - **Touch has no hover.** Any new affordance that relies on hover needs a tap equivalent (see `select()`).
+- **Game px != CSS px.** The canvas renders at `PT.DPR` x. Multiply fixed pixel values by `this.dpr`; values already scaled by `f`, `unit` or `node.base` are fine. Breakpoints use `cw, ch` (CSS px). See ARCHITECTURE.md, Resolution.
+- **Phaser `setLetterSpacing` clips right-aligned text.** Do not use it on text with origin x = 1.
 - **Phaser 3 API only.** Verify a method exists before calling it. The original bug in this project was a call to a non-existent `setCharacterSpacing`; the Text method is `setLetterSpacing`.
 - **Container hit areas are in top-left local space.** Phaser adds the display origin before calling the hit-area callback, so a Container with `setSize(w, h)` needs its hit shape centred at `(w/2, h/2)`, not `(0, 0)`. Getting this wrong made every node unclickable once.
 - **Headless Edge throttles requestAnimationFrame**, so Phaser input never processes there. For an input test, construct the game with `fps: { forceSetTimeOut: true }` and dispatch `MouseEvent('mousedown')` on the canvas (Phaser listens for mouse/touch events, not `pointerdown`).
@@ -49,6 +51,7 @@ Pulse Thief: a single-scene Phaser 3.90.0 arcade game. Zero build step, zero ass
 
 4. Headless screenshots: Edge enforces a minimum window width (~500 px), so to test a phone size pin the `.shell` element to exact pixel dimensions instead of relying on `--window-size`. The screenshot step also resizes the viewport at capture time, which triggers the `ResizeObserver` and can capture a cleared canvas; pinning the shell avoids that too.
 5. Synthetic touch in a test needs `pageX` / `pageY` on the `Touch` (Phaser reads those), not just `clientX` / `clientY`, and the `--touch-events=enabled` flag.
+6. To test a DPR, set `PT.DPR` before creating the game and build the config the way `main.js` does; pointer coordinates in CSS px are `node.x / PT.DPR`.
 
 ## Style
 
