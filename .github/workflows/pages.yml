@@ -42,7 +42,7 @@ jobs:
           # Cache-bust every local script and stylesheet with the commit SHA so
           # browsers (phones especially) fetch new code after each deploy.
           V="${GITHUB_SHA::7}"
-          sed -E "s#(src|href)=\"((src|assets|vendor)/[^\"?]+)\"#=\"?v=$V\"#g" index.html > _site/index.html
+          sed -E "s#(src|href)=\"((src|assets|vendor)/[^\"?]+)\"#\1=\"\2?v=$V\"#g" index.html > _site/index.html
           grep -c "?v=$V" _site/index.html
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
