@@ -80,7 +80,7 @@
       this.chargeCaption = t(0, 0, 'CHARGES', 9, '#c9a34f');
       this.chargeLabel = t(0, 0, '', 12, '#ffcf70');
       this.targetCaption = t(0, 0, 'TARGET', 9, '#7299ad');
-      this.targetLabel = t(0, 0, '0 / 0', 12, '#cfe9f2');
+      this.targetLabel = t(0, 0, '0 / 0', 22, '#7ef4ff');
       this.statusLabel = t(0, 0, '', 11, '#8ec9df');
       this.helpLabel = t(0, 0, 'R RESTART   M SOUND', 9, '#5c8199').setLetterSpacing(1);
       this.previewLabel = t(0, 0, '', 10, '#ffffff').setOrigin(0.5, 1).setDepth(6).setVisible(false).setLetterSpacing(1);
@@ -133,7 +133,7 @@
       const f = dpr * Phaser.Math.Clamp(Math.min(cw / 960, ch / 560), 0.68, 1);
       this.f = f;
       const pad = Math.round(12 * f);
-      const topH = Math.round((portrait ? 98 : 72) * f);
+      const topH = Math.round((portrait ? 104 : 80) * f);
       const bottomH = Math.round(30 * f);
       const field = { x: pad, y: topH, w: W - pad * 2, h: Math.max(120, H - topH - bottomH - pad) };
       this.field = field;
@@ -168,22 +168,24 @@
         this.scoreCaption.setOrigin(1, 0).setPosition(W - pad - 4, 8 * f); fs(this.scoreCaption, 9);
         this.scoreLabel.setOrigin(1, 0).setPosition(W - pad - 4, 20 * f); fs(this.scoreLabel, 20);
         this.bestLabel.setOrigin(0, 0).setPosition(pad + 4, 34 * f); fs(this.bestLabel, 10);
-        this.chargeCaption.setOrigin(0, 0).setPosition(pad + 4, 56 * f); fs(this.chargeCaption, 9);
-        this.L = { cellsX: pad + 4, cellsY: 78 * f, cellsAlign: 0, barX: W - pad - 4, barY: 78 * f, barW: Math.min(150 * f, W * 0.4), barAlign: 1 };
-        this.targetCaption.setVisible(true).setOrigin(1, 0).setPosition(W - pad - 4, 56 * f); fs(this.targetCaption, 9);
-        this.chargeLabel.setOrigin(0, 0.5).setPosition(pad + 4, 78 * f); fs(this.chargeLabel, 12);
-        this.targetLabel.setOrigin(1, 0.5).setPosition(W - pad - 4 - this.L.barW - 8 * dpr, 78 * f); fs(this.targetLabel, 11);
+        this.chargeCaption.setOrigin(0, 0).setPosition(pad + 4, 58 * f); fs(this.chargeCaption, 9);
+        const barW = Math.min(140 * f, W * 0.34);
+        this.L = { cellsX: pad + 4, cellsY: 82 * f, cellsAlign: 0, barX: W - pad - 4, barY: 84 * f, barW, barAlign: 1, barH: 10 * f };
+        this.targetCaption.setVisible(true).setOrigin(1, 0).setPosition(W - pad - 4, 58 * f); fs(this.targetCaption, 9);
+        this.chargeLabel.setOrigin(0, 0.5).setPosition(pad + 4, 82 * f); fs(this.chargeLabel, 12);
+        this.targetLabel.setOrigin(1, 0.5).setPosition(W - pad - 4 - barW - 10 * dpr, 80 * f); fs(this.targetLabel, 22);
       } else {
         this.title.setOrigin(0, 0).setPosition(pad + 6, 12 * f); fs(this.title, 22);
         this.subtitle.setVisible(!hideSub).setOrigin(0, 0).setPosition(pad + 7, 42 * f); fs(this.subtitle, 10);
         this.scoreCaption.setOrigin(0.5, 0).setPosition(W / 2, 10 * f); fs(this.scoreCaption, 9);
         this.scoreLabel.setOrigin(0.5, 0).setPosition(W / 2, 22 * f); fs(this.scoreLabel, 22);
         this.bestLabel.setOrigin(0.5, 0).setPosition(W / 2, 50 * f); fs(this.bestLabel, 10);
-        this.chargeCaption.setOrigin(1, 0).setPosition(W - pad - 6, 10 * f); fs(this.chargeCaption, 9);
-        this.L = { cellsX: W - pad - 6, cellsY: 30 * f, cellsAlign: 1, barX: W - pad - 6, barY: 54 * f, barW: 150 * f, barAlign: 1 };
-        this.targetCaption.setVisible(false);
-        this.chargeLabel.setOrigin(1, 0.5).setPosition(W - pad - 6, 30 * f); fs(this.chargeLabel, 12);
-        this.targetLabel.setOrigin(1, 0.5).setPosition(W - pad - 6 - this.L.barW - 8 * dpr, 54 * f); fs(this.targetLabel, 11);
+        const barW = 160 * f;
+        this.targetCaption.setVisible(true).setOrigin(1, 0).setPosition(W - pad - 6, 10 * f); fs(this.targetCaption, 9);
+        this.targetLabel.setOrigin(1, 0.5).setPosition(W - pad - 6 - barW - 10 * dpr, 34 * f); fs(this.targetLabel, 22);
+        this.chargeCaption.setOrigin(1, 0).setPosition(W - pad - 6, 52 * f); fs(this.chargeCaption, 9);
+        this.L = { cellsX: W - pad - 6, cellsY: 72 * f, cellsAlign: 1, barX: W - pad - 6, barY: 36 * f, barW, barAlign: 1, barH: 10 * f };
+        this.chargeLabel.setOrigin(1, 0.5).setPosition(W - pad - 6, 72 * f); fs(this.chargeLabel, 12);
       }
       this.statusLabel.setOrigin(portrait ? 0.5 : 0, 0.5).setPosition(portrait ? W / 2 : pad + 6, H - bottomH / 2 - pad / 2); fs(this.statusLabel, 11);
       this.statusLabel.setWordWrapWidth(W - pad * 2 - 8 * dpr - 48 * dpr);
@@ -379,6 +381,7 @@
       this.won = false;
       this.lastReaction = 0;
       this.activated = 0;
+      this._shownActivated = undefined;
       this.combo = 0;
       this.maxCombo = 0;
       this.charges = CONFIG.initialCharges + (this.sector >= CONFIG.bonusChargeSector ? 1 : 0);
@@ -824,7 +827,10 @@
       this.bestLabel.setText('BEST ' + String(this.best).padStart(6, '0'));
       const banked = this.ended && this.won;
       this.chargeLabel.setText(banked ? 'BANKED' : (this.charges <= 0 ? 'EMPTY' : ''));
-      this.targetLabel.setText(this.activated + ' / ' + this.target);
+      const reached = this.activated >= this.target;
+      this.targetLabel.setText(this.activated + ' / ' + this.target).setColor(reached ? '#62ffad' : '#7ef4ff');
+      if (this._shownActivated !== undefined && this.activated !== this._shownActivated) this.punch(this.targetLabel, 1.3);
+      this._shownActivated = this.activated;
 
       const g = this.hudG;
       g.clear();
@@ -845,16 +851,17 @@
         }
       }
       // Target bar
-      const bw = L.barW, bh = Math.round(8 * f);
+      const bw = L.barW, bh = Math.round(L.barH || 10 * f);
       const bx = L.barAlign === 1 ? L.barX - bw : L.barX, by = L.barY - bh / 2;
       const done = this.target > 0 ? Math.min(1, this.activated / this.target) : 0;
       g.fillStyle(0x0d2233, 1); g.fillRoundedRect(bx, by, bw, bh, bh / 2);
       if (done > 0) {
         const col = done >= 1 ? COLORS.green : COLORS.cyan;
-        g.fillStyle(col, 0.25); g.fillRoundedRect(bx - 1, by - 1, Math.max(bh, bw * done) + 2, bh + 2, bh / 2 + 1);
-        g.fillStyle(col, 1); g.fillRoundedRect(bx, by, Math.max(bh, bw * done), bh, bh / 2);
+        const fw = Math.max(bh, bw * done);
+        g.fillStyle(col, 0.22); g.fillRoundedRect(bx - 3 * this.dpr, by - 3 * this.dpr, fw + 6 * this.dpr, bh + 6 * this.dpr, bh / 2 + 3 * this.dpr);
+        g.fillStyle(col, 1); g.fillRoundedRect(bx, by, fw, bh, bh / 2);
       }
-      g.lineStyle(1 * this.dpr, 0x2b5a72, 0.8); g.strokeRoundedRect(bx, by, bw, bh, bh / 2);
+      g.lineStyle(1 * this.dpr, 0x3a7a94, 0.9); g.strokeRoundedRect(bx, by, bw, bh, bh / 2);
     }
 
     // ------------------------------------------------------------ win / lose

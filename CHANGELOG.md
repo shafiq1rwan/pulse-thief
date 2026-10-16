@@ -10,6 +10,7 @@ All notable changes to this project are recorded here. Format follows [Keep a Ch
 - Reach preview is clipped to the playfield.
 
 ### Changed
+- Target readout is now the primary HUD element: large lit / target number (turns green when reached, punches on every change), TARGET caption in both orientations, thicker glowing progress bar.
 - Page chrome removed: the canvas fills the viewport inside the safe areas. The masthead and footer are gone; the `?` help button floats bottom-right.
 - HUD captions lose their letter spacing (Phaser clipped right-aligned spaced text) and get an 8 CSS px floor.
 - GitHub Pages deploy workflow (`.github/workflows/pages.yml`): syntax check, then publish the static site on every push to `main`.
